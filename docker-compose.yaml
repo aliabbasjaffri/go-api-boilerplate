@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+    database:
+        image: mongo:latest
+        container_name: "mongodb"
+        environment:
+            MONGO_INITDB_DATABASE: go-api-db
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: rootpassword
+        ports:
+            - 27017:27017
+        volumes:
+            - mongodb_data_container:/data/db
+    # app:
+    #     build: .
+    #     container_name: "api"
+    #     env_file:
+    #         - .env
+    #     ports:
+    #         - 5000:5000
+    #     depends_on:
+    #         - database
+
+volumes:
+  mongodb_data_container:
