@@ -14,8 +14,8 @@ import (
 func establishDBConnection() * mongo.Client {
 	//the connection string should be passed as constructor
 	//re-implement the logic in object oriented paradigm
-
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	//replace the username and password with OS vars
+	clientOptions := options.Client().ApplyURI("mongodb://root:rootpassword@localhost:27017")
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 
@@ -35,10 +35,7 @@ func establishDBConnection() * mongo.Client {
 
 func closeDBConnection(client * mongo.Client) {
 	err := client.Disconnect(context.TODO())
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	if err != nil { log.Fatal(err) }
 	fmt.Println("Connection to MongoDB closed.")
 }
 
@@ -46,19 +43,50 @@ func getUserCollection(client * mongo.Client) * mongo.Collection {
 	return client.Database("go-api-db").Collection("users")
 }
 
-func AddUser(name string, age int, emailAddress string) {
+func AddUser(user model.User)  {
 	dbClient := establishDBConnection()
 	collection := getUserCollection(dbClient)
 	_context, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
-	user := model.User{Name: name, Age: age, Email: emailAddress}
 	insertResult, err := collection.InsertOne(_context, user)
 	if err != nil {
+		fmt.Print("Error occurred during object insertion in DB")
 		log.Fatal(err)
 	}
 
 	fmt.Println("User inserted successfully: ", insertResult.InsertedID)
 	closeDBConnection(dbClient)
+}
+
+func GetAllUsers() []* model.User {
+	dbClient := establishDBConnection()
+	collection := getUserCollection(dbClient)
+
+	var _findResults []* model.User
+	_option := options.Find().SetLimit(5)
+	curr, err := collection.Find(context.TODO(), bson.D{}, _option)
+	if err != nil {
+		fmt.Printf("No users found")
+		log.Fatal(err)
+	}
+
+	for curr.Next(context.TODO()) {
+		var obj model.User
+		err := curr.Decode(&obj)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+		_findResults = append(_findResults, &obj)
+	}
+	//if we come across an error in the cursor
+	if err := curr.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	curr.Close(context.TODO())
+	closeDBConnection(dbClient)
+	return _findResults
 }
 
 func FindUser(_name string, _email string) []* model.User {
