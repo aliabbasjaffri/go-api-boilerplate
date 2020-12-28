@@ -1,16 +1,20 @@
 package dao
 
 import (
-	. "../model"
+	"api/v1/model"
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"time"
 )
 
 func establishDBConnection() * mongo.Client {
+	//the connection string should be passed as constructor
+	//re-implement the logic in object oriented paradigm
+
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -45,10 +49,10 @@ func getUserCollection(client * mongo.Client) * mongo.Collection {
 func AddUser(name string, age int, emailAddress string) {
 	dbClient := establishDBConnection()
 	collection := getUserCollection(dbClient)
+	_context, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
-	user := User{Name: name, Age: age, Email: emailAddress}
-
-	insertResult, err := collection.InsertOne(context.TODO(), user)
+	user := model.User{Name: name, Age: age, Email: emailAddress}
+	insertResult, err := collection.InsertOne(_context, user)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,11 +61,11 @@ func AddUser(name string, age int, emailAddress string) {
 	closeDBConnection(dbClient)
 }
 
-func FindUser(_name string, _email string) []* User {
+func FindUser(_name string, _email string) []* model.User {
 	dbClient := establishDBConnection()
 	collection := getUserCollection(dbClient)
 
-	var _findResults []* User
+	var _findResults []* model.User
 	_filter := bson.D{
 		{ "$or", bson.D{
 			{"name", _name},
@@ -82,7 +86,7 @@ func FindUser(_name string, _email string) []* User {
 		log.Fatal(err)
 	}
 	for curr.Next(context.TODO()) {
-		var obj User
+		var obj model.User
 		err := curr.Decode(&obj)
 
 		if err != nil {
