@@ -13,8 +13,7 @@ func CreateUser(response http.ResponseWriter, request * http.Request) {
 	response.Header().Set("content-type", "application/json")
 	var user model.User
 
-	err := json.NewDecoder(request.Body).Decode(&user)
-	if err != nil {
+	if err := json.NewDecoder(request.Body).Decode(&user); err != nil {
 		fmt.Print("Error occurred during conversion of JSON to User object")
 		log.Fatal(err)
 	}
