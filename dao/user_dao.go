@@ -36,7 +36,7 @@ func establishDBConnection() * mongo.Client {
 func closeDBConnection(client * mongo.Client) {
 	err := client.Disconnect(context.TODO())
 	if err != nil { log.Fatal(err) }
-	fmt.Println("Connection to MongoDB closed.")
+	fmt.Println("Connection to MongoDB closed!")
 }
 
 func getUserCollection(client * mongo.Client) * mongo.Collection {

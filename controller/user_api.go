@@ -3,7 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	dao "github.com/aliabbasjaffri/go-api-boilerplate/dao"
+	"github.com/aliabbasjaffri/go-api-boilerplate/dao"
 	"github.com/aliabbasjaffri/go-api-boilerplate/model"
 	"log"
 	"net/http"
