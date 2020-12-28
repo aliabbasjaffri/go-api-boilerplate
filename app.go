@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	controller "github.com/aliabbasjaffri/go-api-boilerplate/controller"
+	"github.com/aliabbasjaffri/go-api-boilerplate/controller"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -18,7 +18,9 @@ func main () {
 	//client, _ = mongo.Connect(ctx, clientOptions)
 
 	router := mux.NewRouter()
-	router.Host("localhost")
-	router.HandleFunc("/person", controller.CreateUser).Methods("POST")
+	router.HandleFunc("/", controller.GetAllUsers).Methods("GET")
+	router.HandleFunc("/getusers", controller.GetAllUsers).Methods("GET")
+	router.HandleFunc("/adduser", controller.CreateUser).Methods("POST")
+	//router.HandleFunc("/persons", controller.GetAllUsers).Methods("GET")
 	http.ListenAndServe(":9999", router)
 }
