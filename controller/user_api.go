@@ -1,6 +1,6 @@
 package controller
 import (
-	dao "api/v1/dao"
+	dao "github.com/aliabbasjaffri/go-api-boilerplate/dao"
 	//"context"
 	"encoding/json"
 	"net/http"

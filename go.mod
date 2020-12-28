@@ -1,4 +1,4 @@
-module api/v1
+module github.com/aliabbasjaffri/go-api-boilerplate
 
 go 1.15
 

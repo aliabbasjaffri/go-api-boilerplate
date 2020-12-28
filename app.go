@@ -1,8 +1,8 @@
 package main
 
 import (
-	controller "api/v1/controller"
 	"fmt"
+	controller "github.com/aliabbasjaffri/go-api-boilerplate/controller"
 	"github.com/gorilla/mux"
 	"net/http"
 )
