@@ -1,26 +1,31 @@
-version: "3"
+version: "3.7"
+
+x-common-variables: &common-variables
+    MONGO_INITDB_DATABASE: "go-api-db"
+    MONGO_INITDB_ROOT_USERNAME: "root"
+    MONGO_INITDB_ROOT_PASSWORD: "rootpassword"
+
 
 services:
     database:
         image: mongo:latest
         container_name: "mongodb"
-        environment:
-            MONGO_INITDB_DATABASE: go-api-db
-            MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: rootpassword
+        environment: *common-variables
         ports:
             - 27017:27017
         volumes:
             - mongodb_data_container:/data/db
-    # app:
-    #     build: .
-    #     container_name: "api"
-    #     env_file:
-    #         - .env
-    #     ports:
-    #         - 5000:5000
-    #     depends_on:
-    #         - database
+    app:
+        build: .
+        container_name: "api"
+        environment:
+            <<: *common-variables
+            MONGO_SERVER: "localhost"
+            MONGO_INITDB_DATABASE_COLL: "users"
+        ports:
+            - 9090:9090
+        depends_on:
+            - database
 
 volumes:
   mongodb_data_container:
