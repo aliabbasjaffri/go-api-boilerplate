@@ -5,10 +5,11 @@ WORKDIR /app/src
 COPY go.sum go.mod ./
 RUN go mod download
 COPY . .
-RUN go build -a -v -o app .
+RUN go build -v -o api .
 
-FROM golang:alpine as DEPLOY
+FROM alpine:latest as DEPLOY
 WORKDIR /app/build
 COPY --from=BUILDER app .
 
-CMD ["./app"]
+EXPOSE 9090
+CMD ["./api"]
