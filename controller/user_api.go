@@ -7,7 +7,18 @@ import (
 	"github.com/aliabbasjaffri/go-api-boilerplate/model"
 	"log"
 	"net/http"
+	"os"
 )
+
+var daoObj = dao.UserDao{}
+
+func init() {
+	daoObj.Server = os.Getenv("MONGO_SERVER")
+	daoObj.Username = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	daoObj.Password = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	daoObj.Database = os.Getenv("MONGO_INITDB_DATABASE")
+	daoObj.Collection = os.Getenv("MONGO_INITDB_DATABASE_COLL")
+}
 
 func CreateUser(response http.ResponseWriter, request * http.Request) {
 	response.Header().Set("content-type", "application/json")
@@ -18,13 +29,13 @@ func CreateUser(response http.ResponseWriter, request * http.Request) {
 		log.Fatal(err)
 	}
 
-	dao.AddUser(user)
+	daoObj.AddUser(user)
 	log.Fatal(json.NewEncoder(response).Encode("User added successfully"))
 }
 
 func GetAllUsers(response http.ResponseWriter, _ * http.Request) {
 	response.Header().Set("content-type", "application/json")
-	users := dao.GetAllUsers()
+	users := daoObj.GetAllUsers()
 	log.Fatal(json.NewEncoder(response).Encode(users))
 }
 
@@ -37,7 +48,7 @@ func UpdateUser(response http.ResponseWriter, request * http.Request) {
 		log.Fatal(err)
 	}
 
-	updateCount := dao.UpdateUser(user.Email, user.Age)
+	updateCount := daoObj.UpdateUser(user.Email, user.Age)
 	log.Fatal(json.NewEncoder(response).Encode(fmt.Sprintf("%v User/s updated successfully", updateCount)))
 }
 
@@ -50,6 +61,6 @@ func DeleteUser(response http.ResponseWriter, request * http.Request) {
 		log.Fatal(err)
 	}
 
-	deleteCount := dao.DeleteUser(user.Email)
+	deleteCount := daoObj.DeleteUser(user.Email)
 	log.Fatal(json.NewEncoder(response).Encode(fmt.Sprintf("%v User/s deleted successfully", deleteCount)))
 }
