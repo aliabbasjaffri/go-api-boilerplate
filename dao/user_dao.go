@@ -127,23 +127,23 @@ func FindUser(_name string, _email string) []* model.User {
 	return _findResults
 }
 
-func UpdateUser(_email string, _age int) {
+func UpdateUser(_email string, _age int) int {
 	//open db connection, retrieve respective collection
 	dbClient := establishDBConnection()
 	collection := getUserCollection(dbClient)
 
+	var modifiedCount int
 	//filter to search the user
 	filter := bson.D{{"email", _email}}
-
 	//update to apply on the filtered user
 	update := bson.D{
-		{"$inc", bson.D{
+		{"$set", bson.D{
 				{"age", _age},
 			},
 		},
 	}
 	//perform update on collection
-	if Result, err := collection.UpdateOne(context.TODO(), filter, update); err != nil {
+	if Result, err := collection.UpdateMany(context.TODO(), filter, update); err != nil {
 		fmt.Printf(
 			"User with email %s not found",
 			_email,
@@ -151,15 +151,18 @@ func UpdateUser(_email string, _age int) {
 		log.Fatal(err)
 	} else {
 		//update user and close db connection
-		fmt.Printf("Updated %v User", Result.ModifiedCount)
+		fmt.Printf("Updated %v User \n", Result.ModifiedCount)
+		modifiedCount = int(Result.ModifiedCount)
 	}
 	closeDBConnection(dbClient)
+	return modifiedCount
 }
 
-func DeleteUser(_email string) {
+func DeleteUser(_email string) int {
 	dbClient := establishDBConnection()
 	collection := getUserCollection(dbClient)
 
+	var deletedCount int
 	filter := bson.D{{"email", _email}}
 	if Result, err := collection.DeleteOne(context.TODO(), filter); err != nil {
 		fmt.Printf(
@@ -169,6 +172,8 @@ func DeleteUser(_email string) {
 		log.Fatal(err)
 	} else {
 		fmt.Printf("Users deleted: %v", Result.DeletedCount)
+		deletedCount = int(Result.DeletedCount)
 	}
 	closeDBConnection(dbClient)
+	return deletedCount
 }
