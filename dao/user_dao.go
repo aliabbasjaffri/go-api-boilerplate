@@ -11,43 +11,48 @@ import (
 	"time"
 )
 
-func establishDBConnection() * mongo.Client {
-	//the connection string should be passed as constructor
-	//re-implement the logic in object oriented paradigm
-	//replace the username and password with OS vars
-	clientOptions := options.Client().ApplyURI("mongodb://root:rootpassword@localhost:27017")
+type UserDao struct {
+	Server     string
+	Username   string
+	Password   string
+	Database   string
+	Collection string
+}
+
+var mongoClient * mongo.Client
+
+func ( T * UserDao) establishDBConnection() * mongo.Collection {
+	//establish connection
+	connectionString := fmt.Sprintf("mongodb://%v:%v@%v:27017", T.Username, T.Password, T.Server)
+	fmt.Print(connectionString)
+	clientOptions := options.Client().ApplyURI(connectionString)
 
 	// Connect to MongoDB
-	if client, err := mongo.Connect(context.TODO(), clientOptions); err != nil {
+	if mongoClient, err := mongo.Connect(context.TODO(), clientOptions); err != nil {
 		log.Fatal(err)
 	} else {
 		// Check the connection
-		if err := client.Ping(context.TODO(), nil); err != nil {
+		if err := mongoClient.Ping(context.TODO(), nil); err != nil {
 			fmt.Print("Unable to ping MongoDB server. Aborting connection request.")
 			log.Fatal(err)
 			return nil
 		}
 		fmt.Println("Connected to MongoDB!")
-		return client
+		return mongoClient.Database(T.Database).Collection(T.Collection)
 	}
 	return nil
 }
 
-func closeDBConnection(client * mongo.Client) {
-	if err := client.Disconnect(context.TODO()); err != nil {
+func ( T * UserDao) closeDBConnection() {
+	if err := mongoClient.Disconnect(context.TODO()); err != nil {
 		fmt.Print("Unable to close Mongo DB connection")
 		log.Fatal(err)
 	}
 	fmt.Println("Connection to MongoDB closed!")
 }
 
-func getUserCollection(client * mongo.Client) * mongo.Collection {
-	return client.Database("go-api-db").Collection("users")
-}
-
-func AddUser(user model.User)  {
-	dbClient := establishDBConnection()
-	collection := getUserCollection(dbClient)
+func ( T * UserDao) AddUser(user model.User)  {
+	collection := T.establishDBConnection()
 	_context, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	if insertResult, err := collection.InsertOne(_context, user); err != nil {
@@ -57,12 +62,11 @@ func AddUser(user model.User)  {
 		fmt.Println("User inserted successfully: ", insertResult.InsertedID)
 	}
 
-	closeDBConnection(dbClient)
+	T.closeDBConnection()
 }
 
-func GetAllUsers() []* model.User {
-	dbClient := establishDBConnection()
-	collection := getUserCollection(dbClient)
+func ( T * UserDao) GetAllUsers() []* model.User {
+	collection := T.establishDBConnection()
 
 	var _findResults []* model.User
 	_option := options.Find().SetLimit(5)
@@ -84,13 +88,12 @@ func GetAllUsers() []* model.User {
 		}
 		curr.Close(context.TODO())
 	}
-	closeDBConnection(dbClient)
+	T.closeDBConnection()
 	return _findResults
 }
 
-func FindUser(_name string, _email string) []* model.User {
-	dbClient := establishDBConnection()
-	collection := getUserCollection(dbClient)
+func ( T * UserDao) FindUser(_name string, _email string) []* model.User {
+	collection := T.establishDBConnection()
 
 	var _findResults []* model.User
 	_filter := bson.D{
@@ -123,14 +126,13 @@ func FindUser(_name string, _email string) []* model.User {
 		}
 		curr.Close(context.TODO())
 	}
-	closeDBConnection(dbClient)
+	T.closeDBConnection()
 	return _findResults
 }
 
-func UpdateUser(_email string, _age int) int {
+func ( T * UserDao) UpdateUser(_email string, _age int) int {
 	//open db connection, retrieve respective collection
-	dbClient := establishDBConnection()
-	collection := getUserCollection(dbClient)
+	collection := T.establishDBConnection()
 
 	var modifiedCount int
 	//filter to search the user
@@ -154,13 +156,12 @@ func UpdateUser(_email string, _age int) int {
 		fmt.Printf("Updated %v User \n", Result.ModifiedCount)
 		modifiedCount = int(Result.ModifiedCount)
 	}
-	closeDBConnection(dbClient)
+	T.closeDBConnection()
 	return modifiedCount
 }
 
-func DeleteUser(_email string) int {
-	dbClient := establishDBConnection()
-	collection := getUserCollection(dbClient)
+func ( T * UserDao) DeleteUser(_email string) int {
+	collection := T.establishDBConnection()
 
 	var deletedCount int
 	filter := bson.D{{"email", _email}}
@@ -174,6 +175,6 @@ func DeleteUser(_email string) int {
 		fmt.Printf("Users deleted: %v", Result.DeletedCount)
 		deletedCount = int(Result.DeletedCount)
 	}
-	closeDBConnection(dbClient)
+	T.closeDBConnection()
 	return deletedCount
 }
