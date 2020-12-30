@@ -19,13 +19,13 @@ func CreateUser(response http.ResponseWriter, request * http.Request) {
 	}
 
 	dao.AddUser(user)
-	json.NewEncoder(response).Encode("User added successfully")
+	log.Fatal(json.NewEncoder(response).Encode("User added successfully"))
 }
 
-func GetAllUsers(response http.ResponseWriter, request * http.Request) {
+func GetAllUsers(response http.ResponseWriter, _ * http.Request) {
 	response.Header().Set("content-type", "application/json")
 	users := dao.GetAllUsers()
-	json.NewEncoder(response).Encode(users)
+	log.Fatal(json.NewEncoder(response).Encode(users))
 }
 
 func UpdateUser(response http.ResponseWriter, request * http.Request) {
@@ -38,7 +38,7 @@ func UpdateUser(response http.ResponseWriter, request * http.Request) {
 	}
 
 	updateCount := dao.UpdateUser(user.Email, user.Age)
-	json.NewEncoder(response).Encode(fmt.Sprintf("%v User/s updated successfully", updateCount))
+	log.Fatal(json.NewEncoder(response).Encode(fmt.Sprintf("%v User/s updated successfully", updateCount)))
 }
 
 func DeleteUser(response http.ResponseWriter, request * http.Request) {
@@ -51,5 +51,5 @@ func DeleteUser(response http.ResponseWriter, request * http.Request) {
 	}
 
 	deleteCount := dao.DeleteUser(user.Email)
-	json.NewEncoder(response).Encode(fmt.Sprintf("%v User/s deleted successfully", deleteCount))
+	log.Fatal(json.NewEncoder(response).Encode(fmt.Sprintf("%v User/s deleted successfully", deleteCount)))
 }
