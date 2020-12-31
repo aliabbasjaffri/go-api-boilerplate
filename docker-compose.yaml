@@ -22,6 +22,7 @@ services:
             <<: *common-variables
             MONGO_SERVER: "mongodb"
             MONGO_INITDB_DATABASE_COLL: "users"
+            SERVER_PORT: 9090
         ports:
             - 9090:9090
         depends_on:

@@ -50,9 +50,10 @@ func main () {
 	router.HandleFunc("/deleteuser", controller.DeleteUser).Methods("DELETE")
 
 	//creating server with timeouts
+	_port := fmt.Sprintf(":%v", os.Getenv("SERVER_PORT"))
 	server := &http.Server {
 		Handler:      router,
-		Addr:         ":9090",
+		Addr:         _port,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
@@ -61,7 +62,7 @@ func main () {
 	go func() {
 		fmt.Println("Listening to requests...")
 		if err := server.ListenAndServe(); err != nil {
-			fmt.Print("Unable to start router at port: 9090")
+			fmt.Print("Unable to start router at the defined port")
 			log.Fatal(err)
 		}
 	}()
