@@ -17,5 +17,8 @@ func main () {
 	router.HandleFunc("/adduser", controller.CreateUser).Methods("POST")
 	router.HandleFunc("/updateuser", controller.UpdateUser).Methods("PUT")
 	router.HandleFunc("/deleteuser", controller.DeleteUser).Methods("DELETE")
-	log.Fatal(http.ListenAndServe(":9999", router))
+	if err := http.ListenAndServe(":9090", router); err != nil {
+		fmt.Print("Unable to start router at port: 9090")
+		log.Fatal(err)
+	}
 }
