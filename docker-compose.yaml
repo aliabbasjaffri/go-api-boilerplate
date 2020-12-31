@@ -1,6 +1,6 @@
 version: "3.7"
 
-x-common-variables: &common-variables
+x-enviroment: &common-variables
     MONGO_INITDB_DATABASE: "go-api-db"
     MONGO_INITDB_ROOT_USERNAME: "root"
     MONGO_INITDB_ROOT_PASSWORD: "rootpassword"
@@ -20,7 +20,7 @@ services:
         container_name: "api"
         environment:
             <<: *common-variables
-            MONGO_SERVER: "localhost"
+            MONGO_SERVER: "mongodb"
             MONGO_INITDB_DATABASE_COLL: "users"
         ports:
             - 9090:9090
