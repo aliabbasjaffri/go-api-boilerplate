@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	"time"
 )
 
 type UserDao struct {
@@ -53,9 +52,8 @@ func ( T * UserDao) closeDBConnection(_client * mongo.Client) {
 func ( T * UserDao) AddUser(user model.User)  {
 	_client := T.establishDBConnection()
 	collection := _client.Database(T.Database).Collection(T.Collection)
-	_context, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
-	if insertResult, err := collection.InsertOne(_context, user); err != nil {
+	if insertResult, err := collection.InsertOne(context.TODO(), user); err != nil {
 		fmt.Print("Error occurred during object insertion in DB")
 		log.Fatal(err)
 	} else {
@@ -86,7 +84,10 @@ func ( T * UserDao) GetAllUsers() []* model.User {
 		if err := curr.Err(); err != nil {
 			log.Fatal(err)
 		}
-		curr.Close(context.TODO())
+		if err := curr.Close(context.TODO()); err != nil {
+			fmt.Print("Error occurred while closing the cursor")
+			log.Fatal(err)
+		}
 	}
 	T.closeDBConnection(_client)
 	return _findResults
@@ -125,7 +126,10 @@ func ( T * UserDao) FindUser(_name string, _email string) []* model.User {
 		if err := curr.Err(); err != nil {
 			log.Fatal(err)
 		}
-		curr.Close(context.TODO())
+		if err:= curr.Close(context.TODO()); err != nil {
+			fmt.Print("Error occurred while closing the cursor")
+			log.Fatal(err)
+		}
 	}
 	T.closeDBConnection(_client)
 	return _findResults
