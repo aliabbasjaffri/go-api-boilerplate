@@ -7,9 +7,4 @@ type User struct {
 	Name  string        		`json:"name" bson:"name"`
 	Age   int           		`json:"age" bson:"age"`
 	Email string        		`json:"email" bson:"email"`
-	//Address * Address   `json:"address"`
 }
-
-//type Address struct {
-//
-//}
