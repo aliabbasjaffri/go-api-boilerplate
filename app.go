@@ -39,6 +39,7 @@ func waitForShutdown(server *http.Server) {
 }
 
 func main () {
+	fmt.Println("Starting the API")
 	//creating a mux router
 	//with endpoints
 	router := mux.NewRouter()
@@ -58,7 +59,7 @@ func main () {
 
 	//starting a concurrent go server
 	go func() {
-		fmt.Print("Starting the API")
+		fmt.Println("Listening to requests...")
 		if err := server.ListenAndServe(); err != nil {
 			fmt.Print("Unable to start router at port: 9090")
 			log.Fatal(err)
