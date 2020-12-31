@@ -18,8 +18,6 @@ type UserDao struct {
 	Collection string
 }
 
-var mongoClient * mongo.Client
-
 func ( T * UserDao) establishDBConnection() * mongo.Client {
 	//establish connection
 	connectionString := fmt.Sprintf("mongodb://%v:%v@%v:27017", T.Username, T.Password, T.Server)
