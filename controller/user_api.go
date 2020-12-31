@@ -30,13 +30,19 @@ func CreateUser(response http.ResponseWriter, request * http.Request) {
 	}
 
 	daoObj.AddUser(user)
-	log.Fatal(json.NewEncoder(response).Encode("User added successfully"))
+	if err := json.NewEncoder(response).Encode("User added successfully"); err != nil {
+		fmt.Print("Unable to encode response message")
+		log.Fatal(err)
+	}
 }
 
 func GetAllUsers(response http.ResponseWriter, _ * http.Request) {
 	response.Header().Set("content-type", "application/json")
 	users := daoObj.GetAllUsers()
-	log.Fatal(json.NewEncoder(response).Encode(users))
+	if err := json.NewEncoder(response).Encode(users); err != nil {
+		fmt.Print("Unable to encode response message")
+		log.Fatal(err)
+	}
 }
 
 func UpdateUser(response http.ResponseWriter, request * http.Request) {
@@ -49,7 +55,11 @@ func UpdateUser(response http.ResponseWriter, request * http.Request) {
 	}
 
 	updateCount := daoObj.UpdateUser(user.Email, user.Age)
-	log.Fatal(json.NewEncoder(response).Encode(fmt.Sprintf("%v User/s updated successfully", updateCount)))
+	if err := json.NewEncoder(response).Encode(
+		fmt.Sprintf("%v User/s updated successfully", updateCount)); err != nil {
+		fmt.Print("Unable to encode response message")
+		log.Fatal(err)
+	}
 }
 
 func DeleteUser(response http.ResponseWriter, request * http.Request) {
@@ -62,5 +72,9 @@ func DeleteUser(response http.ResponseWriter, request * http.Request) {
 	}
 
 	deleteCount := daoObj.DeleteUser(user.Email)
-	log.Fatal(json.NewEncoder(response).Encode(fmt.Sprintf("%v User/s deleted successfully", deleteCount)))
+	if err := json.NewEncoder(response).Encode(
+		fmt.Sprintf("%v User/s deleted successfully", deleteCount)); err != nil {
+		fmt.Print("Unable to encode response message")
+		log.Fatal(err)
+	}
 }
