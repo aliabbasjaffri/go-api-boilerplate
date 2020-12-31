@@ -5,11 +5,10 @@ WORKDIR /app/src
 COPY go.sum go.mod ./
 RUN go mod download
 COPY . .
-RUN go build -v -o api .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -v -o api .
 
 FROM alpine:latest as DEPLOY
-WORKDIR /app/build
-COPY --from=BUILDER app .
+COPY --from=BUILDER /app/src/api .
 
 EXPOSE 9090
-CMD ["./api"]
+ENTRYPOINT ["./api"]
