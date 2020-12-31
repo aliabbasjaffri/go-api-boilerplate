@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"time"
 )
 
 type UserDao struct {
@@ -50,8 +51,10 @@ func ( T * UserDao) closeDBConnection(_client * mongo.Client) {
 func ( T * UserDao) AddUser(user model.User)  {
 	_client := T.establishDBConnection()
 	collection := _client.Database(T.Database).Collection(T.Collection)
+	_context, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	if insertResult, err := collection.InsertOne(context.TODO(), user); err != nil {
+	if insertResult, err := collection.InsertOne(_context, user); err != nil {
 		fmt.Print("Error occurred during object insertion in DB")
 		log.Fatal(err)
 	} else {
@@ -63,11 +66,13 @@ func ( T * UserDao) AddUser(user model.User)  {
 func ( T * UserDao) GetAllUsers() []* model.User {
 	_client := T.establishDBConnection()
 	collection := _client.Database(T.Database).Collection(T.Collection)
+	_context, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	var _findResults []* model.User
 	_option := options.Find().SetLimit(5)
 
-	if curr, err := collection.Find(context.TODO(), bson.D{}, _option); err != nil {
+	if curr, err := collection.Find(_context, bson.D{}, _option); err != nil {
 		fmt.Printf("No users found")
 		log.Fatal(err)
 	} else {
@@ -91,9 +96,11 @@ func ( T * UserDao) GetAllUsers() []* model.User {
 	return _findResults
 }
 
-func ( T * UserDao) FindUser(_name string, _email string) []* model.User {
+func ( T * UserDao) FindUser(_name, _email string) []* model.User {
 	_client := T.establishDBConnection()
 	collection := _client.Database(T.Database).Collection(T.Collection)
+	_context, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	var _findResults []* model.User
 	_filter := bson.D{
@@ -105,7 +112,7 @@ func ( T * UserDao) FindUser(_name string, _email string) []* model.User {
 	}
 	_option := options.Find().SetLimit(3)
 
-	if curr, err := collection.Find(context.TODO(), _filter, _option); err != nil {
+	if curr, err := collection.Find(_context, _filter, _option); err != nil {
 		fmt.Printf(
 			"No user found with name: %s or email: %s",
 			_name,
@@ -137,6 +144,8 @@ func ( T * UserDao) UpdateUser(_email string, _age int) int {
 	//open db connection, retrieve respective collection
 	_client := T.establishDBConnection()
 	collection := _client.Database(T.Database).Collection(T.Collection)
+	_context, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	var modifiedCount int
 	//filter to search the user
@@ -149,7 +158,7 @@ func ( T * UserDao) UpdateUser(_email string, _age int) int {
 		},
 	}
 	//perform update on collection
-	if Result, err := collection.UpdateMany(context.TODO(), filter, update); err != nil {
+	if Result, err := collection.UpdateMany(_context, filter, update); err != nil {
 		fmt.Printf(
 			"User with email %s not found",
 			_email,
@@ -167,10 +176,12 @@ func ( T * UserDao) UpdateUser(_email string, _age int) int {
 func ( T * UserDao) DeleteUser(_email string) int {
 	_client := T.establishDBConnection()
 	collection := _client.Database(T.Database).Collection(T.Collection)
+	_context, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	var deletedCount int
 	filter := bson.D{{"email", _email}}
-	if Result, err := collection.DeleteOne(context.TODO(), filter); err != nil {
+	if Result, err := collection.DeleteOne(_context, filter); err != nil {
 		fmt.Printf(
 			"User with email %s not found!",
 			_email,
